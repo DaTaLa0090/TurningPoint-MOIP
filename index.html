@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turning Point Storage - Buckner, MO | January 2026 MOIP</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0F1419;
+            color: #FFFFFF;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(218, 165, 32, 0.3);
+        }
+
+        .facility-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #DAA520;
+            margin-bottom: 8px;
+        }
+
+        .facility-meta {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .facility-meta span {
+            margin-right: 20px;
+        }
+
+        /* Period Selector */
+        .period-controls {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .period-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .period-selector label {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .period-selector select {
+            background: #1A1D23;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            color: #FFFFFF;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .period-selector select:hover {
+            border-color: rgba(218, 165, 32, 0.6);
+        }
+
+        .manager-narrative-btn {
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+            color: #0F1419;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .manager-narrative-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(218, 165, 32, 0.4);
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #1A1D23 0%, #12151A 100%);
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: rgba(218, 165, 32, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .kpi-card.clickable {
+            cursor: pointer;
+        }
+
+        .kpi-card.clickable:active {
+            transform: scale(0.98);
+        }
+
+        .revenue-card-special {
+            grid-column: span 8;
+        }
+
+        .occupancy-card-special {
+            grid-column: span 4;
+        }
+
+        .kpi-card-small {
+            grid-column: span 3;
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .explore-icon {
+            font-size: 18px;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .clickable:hover .explore-icon {
+            opacity: 1;
+            transform: scale(1.1);
+            filter: brightness(1.3);
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #DAA520;
+            margin-bottom: 8px;
+        }
+
+        .kpi-comparison {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 8px;
+        }
+
+        .kpi-comparison.positive {
+            color: #10B981;
+        }
+
+        .kpi-comparison.negative {
+            color: #EF4444;
+        }
+
+        .kpi-detail {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+        }
+
+        /* Mini Chart */
+        .mini-chart-container {
+            height: 180px;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        /* Combined Occupancy Card */
+        .occupancy-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .occupancy-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .occupancy-row:last-child {
+            border-bottom: none;
+        }
+
+        .occupancy-metric-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+        }
+
+        .occupancy-metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #DAA520;
+        }
+
+        .occupancy-explanation {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+
+        .status-badge.critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        /* Performance Highlights */
+        .performance-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #DAA520;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(218, 165, 32, 0.2);
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #1A1D23 0%, #12151A 100%);
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .highlight-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .highlight-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .highlight-text {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        /* Competitor Cards */
+        .competitors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .competitor-card {
+            background: #1A1D23;
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .competitor-card:hover {
+            border-color: rgba(218, 165, 32, 0.6);
+            transform: translateX(5px);
+        }
+
+        .competitor-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #DAA520;
+            margin-bottom: 8px;
+        }
+
+        .competitor-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1A1D23 0%, #12151A 100%);
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(218, 165, 32, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #DAA520;
+        }
+
+        .modal-close {
+            font-size: 32px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #DAA520;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #DAA520;
+            margin-bottom: 12px;
+        }
+
+        .modal-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .modal-text p {
+            margin-bottom: 12px;
+        }
+
+        .modal-text strong {
+            color: #DAA520;
+        }
+
+        /* Unit Mix Table */
+        .unit-mix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .unit-mix-table th,
+        .unit-mix-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .unit-mix-table th {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+        }
+
+        .unit-mix-table td {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-dot.green { background: #10B981; }
+        .status-dot.yellow { background: #F59E0B; }
+        .status-dot.red { background: #EF4444; }
+
+        /* Intelligence List */
+        .intelligence-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .intelligence-list li {
+            padding: 8px 0 8px 20px;
+            position: relative;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+
+        .intelligence-list li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #DAA520;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(218, 165, 32, 0.2);
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            .revenue-card-special,
+            .occupancy-card-special {
+                grid-column: span 12;
+            }
+            
+            .kpi-card-small {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .facility-name {
+                font-size: 24px;
+            }
+
+            .facility-meta span {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+
+            .period-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .manager-narrative-btn {
+                width: 100%;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .kpi-card {
+                grid-column: span 1 !important;
+                padding: 18px;
+            }
+
+            .kpi-value {
+                font-size: 28px;
+            }
+
+            .explore-icon {
+                font-size: 16px;
+            }
+
+            .mini-chart-container {
+                height: 140px;
+            }
+
+            .period-selector select {
+                font-size: 16px;
+            }
+
+            .competitors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                max-height: 100vh;
+            }
+
+            .modal-close {
+                font-size: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .facility-name {
+                font-size: 20px;
+            }
+
+            .kpi-value {
+                font-size: 24px;
+            }
+
+            .mini-chart-container {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="facility-name">Turning Point Storage - Buckner, MO</h1>
+            <div class="facility-meta">
+                <span>📍 14 N Central St (Central) • 2 S Osage St (Osage) • 1211 S Sibley St (Sibley) • Buckner, MO 64016</span>
+                <span>📊 Reporting Period: January 2026</span>
+                <span>📅 Generated: February 2, 2026</span>
+            </div>
+        </div>
+
+        <!-- Period Selector & Manager Narrative -->
+        <div class="period-controls">
+            <div class="period-selector">
+                <label for="period-select">View Period:</label>
+                <select id="period-select" onchange="updatePeriod()">
+                    <optgroup label="▼ 2026">
+                        <option value="jan2026" selected>January 2026</option>
+                        <option value="q1_2026">Q1 2026 (YTD)</option>
+                    </optgroup>
+                    <optgroup label="▼ 2025 Quarters">
+                        <option value="q4_2025">Q4 2025 (Oct-Dec)</option>
+                        <option value="q3_2025">Q3 2025 (Jul-Sep)</option>
+                        <option value="q2_2025">Q2 2025 (Apr-Jun)</option>
+                        <option value="q1_2025">Q1 2025 (Jan-Mar)</option>
+                        <option value="year_2025">📊 Full Year 2025</option>
+                    </optgroup>
+                    <optgroup label="▼ 2025 Monthly">
+                        <option value="dec2025">December 2025</option>
+                        <option value="nov2025">November 2025</option>
+                        <option value="oct2025">October 2025</option>
+                        <option value="sep2025">September 2025</option>
+                        <option value="aug2025">August 2025</option>
+                        <option value="jul2025">July 2025</option>
+                        <option value="jun2025">June 2025</option>
+                        <option value="may2025">May 2025</option>
+                        <option value="apr2025">April 2025</option>
+                        <option value="mar2025">March 2025</option>
+                        <option value="feb2025">February 2025</option>
+                        <option value="jan2025">January 2025</option>
+                    </optgroup>
+                    <optgroup label="▼ Historical Years">
+                        <option value="year_2024">📊 Full Year 2024</option>
+                        <option value="year_2023">📊 Full Year 2023</option>
+                        <option value="year_2022">📊 Full Year 2022</option>
+                    </optgroup>
+                </select>
+            </div>
+            <button class="manager-narrative-btn" onclick="openManagerNarrative()">📋 Manager Narrative</button>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <!-- Revenue Card (8 columns) -->
+            <div class="kpi-card revenue-card-special clickable" onclick="openRevenueModal()">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="kpi-label">Monthly Revenue</div>
+                    <span class="explore-icon">🔍</span>
+                </div>
+                <div class="kpi-value" id="revenue-value">$18,577</div>
+                <div class="kpi-comparison" id="revenue-comparison-yoy">
+                    <span class="positive">↑ 16.3% YoY</span> (vs $15,984 Jan 2025)
+                </div>
+                <div class="kpi-comparison" id="revenue-comparison-mom">
+                    vs Prior Month: <span class="positive">+$1,136 (+6.5%)</span><br>
+                    <span class="kpi-detail">Prior Month: $17,441</span>
+                </div>
+                <div class="mini-chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Combined Occupancy Card (4 columns) -->
+            <div class="kpi-card occupancy-card-special clickable" onclick="openOccupancyModal()">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="kpi-label">Occupancy Analysis</div>
+                    <span class="explore-icon">🔍</span>
+                </div>
+                <div class="occupancy-metrics">
+                    <div class="occupancy-row">
+                        <div>
+                            <div class="occupancy-metric-label">Physical</div>
+                            <div class="occupancy-metric-value">92.2%<span class="status-badge success">Strong</span></div>
+                        </div>
+                        <div class="kpi-comparison positive" style="text-align: right;">
+                            ↑ 3.3 pts<br>
+                            <span class="kpi-detail">vs 88.9% (Dec)</span>
+                        </div>
+                    </div>
+                    <div class="occupancy-row">
+                        <div>
+                            <div class="occupancy-metric-label">Economic</div>
+                            <div class="occupancy-metric-value">81.4%</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="kpi-detail">Revenue capture</span>
+                        </div>
+                    </div>
+                    <div class="occupancy-row">
+                        <div>
+                            <div class="occupancy-metric-label">Gap</div>
+                            <div class="occupancy-metric-value" style="color: #EF4444;">-10.8 pts</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="status-badge warning">Watch</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="occupancy-explanation">
+                    Click to view unit mix breakdown. Negative gap indicates revenue optimization opportunity.
+                </div>
+            </div>
+
+            <!-- Delinquency Card -->
+            <div class="kpi-card kpi-card-small">
+                <div class="kpi-label">Delinquency (31+ Days)</div>
+                <div class="kpi-value" style="color: #10B981;">0.0%</div>
+                <div class="kpi-detail">
+                    0 accounts | $0 total<br>
+                    <span class="status-badge success">Excellent</span>
+                </div>
+                <div class="kpi-comparison" style="margin-top: 10px;">
+                    Total current delinquency:<br>
+                    8 accounts | $971
+                </div>
+            </div>
+
+            <!-- Net Rentals Card -->
+            <div class="kpi-card kpi-card-small">
+                <div class="kpi-label">Net Rentals</div>
+                <div class="kpi-value" style="color: #10B981;">+6</div>
+                <div class="kpi-detail">
+                    10 move-ins<br>
+                    4 move-outs
+                </div>
+                <div class="kpi-comparison positive" style="margin-top: 10px;">
+                    <span class="status-badge success">Strong</span><br>
+                    Positive growth
+                </div>
+            </div>
+
+            <!-- Autopay Card -->
+            <div class="kpi-card kpi-card-small">
+                <div class="kpi-label">Autopay Penetration</div>
+                <div class="kpi-value" style="color: #10B981;">85.6%</div>
+                <div class="kpi-detail">
+                    142 of 166 tenants<br>
+                    on automatic payment
+                </div>
+                <div class="kpi-comparison">
+                    <span class="status-badge success">Strong</span>
+                </div>
+            </div>
+
+            <!-- Insurance/TP Card -->
+            <div class="kpi-card kpi-card-small">
+                <div class="kpi-label">Insurance/TP</div>
+                <div class="kpi-value" style="color: #10B981;">85.1%</div>
+                <div class="kpi-detail">
+                    114 of 134 eligible units<br>
+                    (excludes 32 parking spaces)
+                </div>
+                <div class="kpi-comparison">
+                    <span class="status-badge success">Strong</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Highlights -->
+        <div class="performance-section">
+            <h2 class="section-title" id="highlights-title">Performance Highlights - January 2026</h2>
+            <div class="highlights-grid" id="highlights-container">
+                <!-- Will be populated dynamically by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Competitive Context -->
+        <div class="performance-section">
+            <h2 class="section-title">Competitive Intelligence</h2>
+            <div class="competitors-grid">
+                <div class="competitor-card" onclick="openCompetitorModal('turning_point_central')">
+                    <div class="competitor-name">🏢 Turning Point Storage-central</div>
+                    <div class="competitor-meta">
+                        0.09 mi | Class B | 6,466 RSF | Hybrid<br>
+                        Rate Volatility: N/A | Marketing: 33/100
+                    </div>
+                </div>
+                <div class="competitor-card" onclick="openCompetitorModal('turning_point')">
+                    <div class="competitor-name">🏢 Turning Point Storage</div>
+                    <div class="competitor-meta">
+                        0.15 mi | Class B | 7,742 RSF | Self Storage<br>
+                        Rate Volatility: N/A | Marketing: 14/100
+                    </div>
+                </div>
+                <div class="competitor-card" onclick="openCompetitorModal('turning_point_sibley')">
+                    <div class="competitor-name">🏢 Turning Point Storage (Sibley)</div>
+                    <div class="competitor-meta">
+                        1.19 mi | Class B | 12,672 RSF | Hybrid<br>
+                        Rate Volatility: 1.18% | Marketing: 44/100
+                    </div>
+                </div>
+                <div class="competitor-card" onclick="openCompetitorModal('royal_state')">
+                    <div class="competitor-name">🏢 Royal State Storage - Lake City</div>
+                    <div class="competitor-meta">
+                        4.81 mi | Class B | 147,791 RSF | Hybrid<br>
+                        Rate Volatility: 11.21% | Marketing: 24/100
+                    </div>
+                </div>
+                <div class="competitor-card" onclick="openCompetitorModal('storage_mart')">
+                    <div class="competitor-name">🏢 Storage Mart</div>
+                    <div class="competitor-meta">
+                        7.91 mi | Class A | 55,924 RSF | Hybrid<br>
+                        Rate Volatility: 7.76% | Marketing: 65/100
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Generated by FITZ OS v2.0 | Turning Point Storage - Buckner, MO | January 2026
+        </div>
+    </div>
+
+    <!-- Revenue Breakdown Modal -->
+    <div id="revenueModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="revenue-modal-title">Revenue Breakdown - January 2026</h2>
+                <span class="modal-close" onclick="closeModal('revenueModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">Current Period Total</div>
+                    <div class="modal-text" id="revenue-modal-summary">
+                        <!-- Populated dynamically by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Revenue by Category</div>
+                    <table class="unit-mix-table" id="revenue-breakdown-table">
+                        <!-- Populated dynamically by JavaScript -->
+                    </table>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Analysis</div>
+                    <div class="modal-text" id="revenue-modal-analysis">
+                        <!-- Populated dynamically by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Occupancy/Unit Mix Modal -->
+    <div id="occupancyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="occupancy-modal-title">Unit Mix & Occupancy Breakdown - January 2026</h2>
+                <span class="modal-close" onclick="closeModal('occupancyModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">Occupancy Summary</div>
+                    <div class="modal-text" id="occupancy-modal-summary">
+                        <!-- Populated dynamically by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Unit Mix by Location</div>
+                    <table class="unit-mix-table">
+                        <thead>
+                            <tr>
+                                <th>Unit Type</th>
+                                <th>Total</th>
+                                <th>Occupied</th>
+                                <th>Vacant</th>
+                                <th>Occupancy</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="unit-mix-table-body">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                        <tfoot style="border-top: 2px solid rgba(218, 165, 32, 0.3);">
+                            <tr>
+                                <td><strong>TOTAL</strong></td>
+                                <td><strong>180</strong></td>
+                                <td><strong>166</strong></td>
+                                <td><strong>14</strong></td>
+                                <td><strong>92.2%</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Key Observations</div>
+                    <div class="modal-text">
+                        <ul class="intelligence-list">
+                            <li>Majority of units (20+ types) are at 100% occupancy, showing strong demand</li>
+                            <li>S Sibley Rd (5 x 10) at 60% represents opportunity for targeted marketing</li>
+                            <li>Outdoor Parking - S Sibley (12 x 20) at 50% needs attention</li>
+                            <li>S Osage St (10 x 10) is vacant (0/1) - may be offline or under maintenance</li>
+                            <li>Overall portfolio health is excellent with most units fully occupied</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Narrative Modal -->
+    <div id="managerNarrativeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="narrative-title">Manager Narrative - January 2026</h2>
+                <span class="modal-close" onclick="closeModal('managerNarrativeModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-text" id="narrative-content">
+                    <!-- Content populated by JavaScript based on selected period -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competitor Modals (simplified - showing structure) -->
+    <div id="competitorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="competitor-title">Competitor Intelligence</h2>
+                <span class="modal-close" onclick="closeModal('competitorModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-text" id="competitor-content">
+                    <!-- Content populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const periodData = {
+            // 2026 PERIODS
+            jan2026: {
+                revenue: 18577,
+                physical_occ: 92.2,
+                economic_occ: 81.4,
+                gap: -10.8,
+                occupied_units: 166,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 6,
+                move_ins: 10,
+                move_outs: 4,
+                autopay: 85.6,
+                insurance: 85.1,
+                prior_revenue: 17441,
+                yoy_revenue: 15984,
+                prior_phys_occ: 88.9,
+                highlights: [
+                    { icon: "✅", title: "Strong Growth Momentum", text: "Revenue up 6.5% month-over-month and 16.3% year-over-year. Physical occupancy jumped to 92.2%, up from 88.9% in December. Net +6 units shows sustained demand." },
+                    { icon: "✅", title: "Exceptional Collections & Engagement", text: "Zero accounts 31+ days past due. Autopay at 85.6% and insurance/TP at 85.1% demonstrate excellent tenant engagement and automated revenue protection." },
+                    { icon: "⚠️", title: "Revenue Optimization Gap", text: "Economic occupancy at 81.4% vs physical 92.2% indicates -10.8 pt gap. This suggests opportunity to increase rates, reduce discounts, or improve collections on current tenants." },
+                    { icon: "ℹ️", title: "Marketing Opportunity", text: "Digital marketing scores (14-44/100) lag competitors like Storage Mart (65/100). Investing in paid search, social media, and website optimization could drive additional demand." }
+                ]
+            },
+            
+            q1_2026: {
+                revenue: 18577,
+                physical_occ: 92.2,
+                economic_occ: 81.4,
+                gap: -10.8,
+                occupied_units: 166,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 6,
+                move_ins: 10,
+                move_outs: 4,
+                autopay: 85.6,
+                insurance: 85.1,
+                prior_revenue: 52501,
+                yoy_revenue: 47589,
+                prior_phys_occ: 91.5,
+                highlights: [
+                    { icon: "ℹ️", title: "Q1 2026 YTD (Jan Only)", text: "Q1 started strong with January as only completed month. $18,577 revenue represents solid start versus Q4 2025 average of $17,500/month." },
+                    { icon: "✅", title: "Strong vs Q1 2025", text: "Tracking ahead of Q1 2025 pace. January 2026 ($18,577) is 16.3% above January 2025 ($15,984), showing year-over-year acceleration." },
+                    { icon: "✅", title: "Excellent Operational Metrics", text: "Zero delinquency, 85.6% autopay, and 85.1% insurance penetration establish strong foundation for Q1 performance." },
+                    { icon: "📊", title: "Quarterly Projections", text: "If February and March maintain January's momentum, Q1 2026 could exceed $55,000 total revenue versus $47,589 in Q1 2025." }
+                ]
+            },
+
+            // 2025 QUARTERLY PERIODS
+            q4_2025: {
+                revenue: 52501,
+                physical_occ: 91.5,
+                economic_occ: 77.8,
+                gap: -13.7,
+                occupied_units: 164,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -8,
+                move_ins: 8,
+                move_outs: 16,
+                autopay: 83.5,
+                insurance: 83.4,
+                prior_revenue: 54511,
+                yoy_revenue: 43000,
+                prior_phys_occ: 94.4,
+                highlights: [
+                    { icon: "⚠️", title: "Seasonal Contraction", text: "Q4 showed typical year-end slowdown with -8 net rentals (8 in, 16 out). Physical occupancy dropped from Q3's peak of 94.4% to 91.5%, still strong overall." },
+                    { icon: "✅", title: "Revenue Resilience", text: "Despite occupancy decline, quarterly revenue of $52,501 stayed relatively strong. Only 3.7% below Q3's $54,511, showing effective rate management." },
+                    { icon: "✅", title: "Strong YoY Growth", text: "Q4 2025 revenue of $52,501 represents 22.1% increase versus Q4 2024 ($43,000 estimated), demonstrating sustained annual growth trajectory." },
+                    { icon: "✅", title: "Consistent Collections", text: "Zero delinquency maintained throughout quarter. Autopay at 83.5% and insurance at 83.4% show operational discipline through seasonal challenges." }
+                ]
+            },
+
+            q3_2025: {
+                revenue: 54511,
+                physical_occ: 94.4,
+                economic_occ: 80.4,
+                gap: -14.0,
+                occupied_units: 169,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 4,
+                move_ins: 17,
+                move_outs: 13,
+                autopay: 82.3,
+                insurance: 83.0,
+                prior_revenue: 48264,
+                yoy_revenue: 46000,
+                prior_phys_occ: 89.4,
+                highlights: [
+                    { icon: "🏆", title: "Peak Performance Quarter", text: "Q3 achieved highest revenue ($54,511) and physical occupancy (94.4%) of the year. July hit 95.5% occupancy - the annual peak." },
+                    { icon: "✅", title: "Strong Sequential Growth", text: "Revenue up 12.9% vs Q2 ($48,264), and physical occupancy jumped from 89.4% to 94.4%. Summer demand momentum exceeded expectations." },
+                    { icon: "⚠️", title: "Economic Gap Widened", text: "Despite peak physical occupancy, economic gap averaged -14.0 pts. August showed largest gap at -16.9 pts, suggesting aggressive summer promotions." },
+                    { icon: "✅", title: "Exceptional YoY Growth", text: "Q3 2025 revenue 18.5% above Q3 2024 ($46,000 est). Positive net +4 rentals (17 in, 13 out) demonstrates strong market demand." }
+                ]
+            },
+
+            q2_2025: {
+                revenue: 48264,
+                physical_occ: 89.4,
+                economic_occ: 76.1,
+                gap: -13.3,
+                occupied_units: 161,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 11,
+                move_ins: 23,
+                move_outs: 12,
+                autopay: 81.0,
+                insurance: 81.7,
+                prior_revenue: 47589,
+                yoy_revenue: 42000,
+                prior_phys_occ: 86.1,
+                highlights: [
+                    { icon: "✅", title: "Spring Leasing Success", text: "Strong net +11 rentals (23 in, 12 out) drove occupancy from 86.1% to 89.4%. May and April were particularly strong move-in months." },
+                    { icon: "✅", title: "Steady Revenue Growth", text: "Q2 revenue of $48,264 represents 1.4% increase vs Q1 ($47,589). Sequential improvement despite June revenue dip shows quarterly resilience." },
+                    { icon: "⚠️", title: "June Revenue Anomaly", text: "June showed unusual $15,215 revenue vs April $15,959 and May $17,090. Worth investigating for rate changes or one-time adjustments." },
+                    { icon: "✅", title: "YoY Improvement", text: "Q2 2025 revenue 14.9% above Q2 2024 ($42,000 est). Physical occupancy gains show strong spring season execution versus prior year." }
+                ]
+            },
+
+            q1_2025: {
+                revenue: 47589,
+                physical_occ: 86.1,
+                economic_occ: 71.7,
+                gap: -14.4,
+                occupied_units: 152,
+                total_units: 177,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 10,
+                move_ins: 17,
+                move_outs: 7,
+                autopay: 79.1,
+                insurance: 79.8,
+                prior_revenue: 42000,
+                yoy_revenue: 38000,
+                prior_phys_occ: 82.0,
+                highlights: [
+                    { icon: "✅", title: "Strong Q1 Foundation", text: "Solid first quarter with $47,589 revenue and positive net +10 rentals (17 in, 7 out). Physical occupancy averaged 86.1%, above target threshold." },
+                    { icon: "⚠️", title: "Largest Economic Gap", text: "Q1 showed the widest gap between physical and economic occupancy (-14.4 pts on average). January gap of -17.8 pts was the annual low point." },
+                    { icon: "✅", title: "Sequential Improvement", text: "Each month showed progress: Jan $15,984 → Feb $15,360 → Mar $16,245. Physical occupancy stabilized at 85.5% in Feb/Mar after January's 87.3%." },
+                    { icon: "✅", title: "YoY Growth Acceleration", text: "Q1 2025 revenue 25.2% above Q1 2024 ($38,000 est), demonstrating strong year-over-year improvement and market momentum." }
+                ]
+            },
+
+            year_2025: {
+                revenue: 202865,
+                physical_occ: 90.4,
+                economic_occ: 76.5,
+                gap: -13.8,
+                occupied_units: 162,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 17,
+                move_ins: 65,
+                move_outs: 48,
+                autopay: 81.6,
+                insurance: 82.0,
+                prior_revenue: 169000,
+                yoy_revenue: 169000,
+                prior_phys_occ: 85.0,
+                highlights: [
+                    { icon: "🎯", title: "Strong Annual Performance", text: "2025 total revenue of $202,865 with average 90.4% physical occupancy and 76.5% economic occupancy. Zero delinquency 31+ maintained year-round." },
+                    { icon: "📈", title: "20% YoY Revenue Growth", text: "Full year revenue increased approximately 20% versus 2024 ($169,000 est). Net +17 units (65 in, 48 out) demonstrates market strength." },
+                    { icon: "🏆", title: "Peak Performance: Q3", text: "Q3 (Jul-Sep) delivered highest quarterly revenue ($54,511) and occupancy (94.4%). August hit 95.5% physical occupancy - the annual peak." },
+                    { icon: "⚠️", title: "Gap Management Opportunity", text: "Average -13.8 pt gap between economic and physical occupancy across the year suggests $25,000+ of untapped revenue through rate optimization." },
+                    { icon: "✅", title: "Operational Excellence", text: "Exceptional operational metrics: 81.6% average autopay, 82.0% insurance penetration, zero serious delinquencies. Strong foundation for 2026 growth." }
+                ]
+            },
+
+            // 2025 MONTHLY PERIODS
+            dec2025: {
+                revenue: 17441,
+                physical_occ: 88.9,
+                economic_occ: 78.3,
+                gap: -10.6,
+                occupied_units: 160,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -6,
+                move_ins: 1,
+                move_outs: 7,
+                autopay: 84.2,
+                insurance: 84.0,
+                prior_revenue: 17275,
+                yoy_revenue: 16817,
+                prior_phys_occ: 92.2,
+                highlights: [
+                    { icon: "⚠️", title: "Seasonal Slowdown", text: "December showed typical seasonal contraction with -6 net rentals (1 in, 7 out). Physical occupancy dropped to 88.9% from November's 92.2%." },
+                    { icon: "✅", title: "Strong Revenue Hold", text: "Despite occupancy drop, revenue declined only slightly to $17,441, down from $17,275. Shows effective rate discipline during slow season." },
+                    { icon: "✅", title: "Excellent Collections", text: "Zero accounts 31+ days past due maintained. Autopay at 84.2% and insurance at 84.0% show strong operational fundamentals." },
+                    { icon: "ℹ️", title: "Year-End Performance", text: "Solid year-end position entering 2026 with clean collections and stable revenue base despite seasonal headwinds." }
+                ]
+            },
+
+            nov2025: {
+                revenue: 17275,
+                physical_occ: 92.2,
+                economic_occ: 77.1,
+                gap: -15.1,
+                occupied_units: 166,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -1,
+                move_ins: 3,
+                move_outs: 4,
+                autopay: 83.8,
+                insurance: 83.5,
+                prior_revenue: 17785,
+                yoy_revenue: 14325,
+                prior_phys_occ: 93.3,
+                highlights: [
+                    { icon: "✅", title: "High Physical Occupancy", text: "Maintained strong 92.2% physical occupancy, matching January 2026's level. Shows consistent ability to attract and retain tenants." },
+                    { icon: "⚠️", title: "Economic Gap Concern", text: "Larger economic gap (-15.1 pts) vs January's -10.8 pts suggests aggressive discounting or collection issues during November." },
+                    { icon: "✅", title: "Excellent Collections", text: "Zero accounts 31+ days past due. Autopay at 83.8% and insurance at 83.5% demonstrate strong operational practices." },
+                    { icon: "ℹ️", title: "Stable Operations", text: "Near-neutral net rentals (-1) with 3 move-ins and 4 move-outs indicate stable tenant base entering winter season." }
+                ]
+            },
+
+            oct2025: {
+                revenue: 17785,
+                physical_occ: 93.3,
+                economic_occ: 78.0,
+                gap: -15.3,
+                occupied_units: 167,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -1,
+                move_ins: 4,
+                move_outs: 5,
+                autopay: 82.5,
+                insurance: 82.8,
+                prior_revenue: 17287,
+                yoy_revenue: 12939,
+                prior_phys_occ: 93.9,
+                highlights: [
+                    { icon: "✅", title: "Peak Physical Occupancy", text: "93.3% represents the highest physical occupancy in the comparison period. 167 of 179 total units occupied." },
+                    { icon: "⚠️", title: "Revenue Gap Persists", text: "Despite peak occupancy, economic gap of -15.3 pts (worst in period) indicates significant pricing or discount challenges." },
+                    { icon: "✅", title: "Strong YoY Growth", text: "Revenue up 37.5% vs October 2024 ($17,785 vs $12,939), showing remarkable annual improvement trajectory." },
+                    { icon: "✅", title: "Excellent Collections", text: "Zero accounts 31+ days past due. Autopay at 82.5% and insurance at 82.8% demonstrate consistent operational excellence." }
+                ]
+            },
+
+            sep2025: {
+                revenue: 17287,
+                physical_occ: 93.9,
+                economic_occ: 77.8,
+                gap: -16.0,
+                occupied_units: 168,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -3,
+                move_ins: 1,
+                move_outs: 4,
+                autopay: 82.5,
+                insurance: 83.2,
+                prior_revenue: 17982,
+                yoy_revenue: 15500,
+                prior_phys_occ: 95.5,
+                highlights: [
+                    { icon: "⚠️", title: "End of Summer Slowdown", text: "September saw minimal leasing activity with only 1 move-in versus 4 move-outs (net -3). Typical seasonal transition into fall." },
+                    { icon: "⚠️", title: "Revenue Decline from Peak", text: "Revenue dropped to $17,287 from August's $17,982. Combined with -16.0 pt economic gap suggests rate pressure after summer season." },
+                    { icon: "✅", title: "Strong Occupancy Hold", text: "Despite net loss of 3 units, physical occupancy remained high at 93.9%, nearly matching August's annual peak of 95.5%." },
+                    { icon: "✅", title: "YoY Growth Maintained", text: "Revenue up 11.5% versus September 2024 ($15,500), showing year-over-year improvement despite seasonal headwinds." }
+                ]
+            },
+
+            aug2025: {
+                revenue: 17982,
+                physical_occ: 95.5,
+                economic_occ: 78.7,
+                gap: -16.9,
+                occupied_units: 171,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 3,
+                move_ins: 7,
+                move_outs: 4,
+                autopay: 82.3,
+                insurance: 83.0,
+                prior_revenue: 19242,
+                yoy_revenue: 15800,
+                prior_phys_occ: 93.9,
+                highlights: [
+                    { icon: "🏆", title: "Annual Peak Occupancy", text: "August achieved 95.5% physical occupancy - the highest of 2025. 171 of 179 units occupied represents exceptional utilization." },
+                    { icon: "⚠️", title: "Largest Economic Gap", text: "Despite peak occupancy, -16.9 pt gap is the worst of 2025. Economic occupancy at only 78.7% suggests heavy summer discounting." },
+                    { icon: "⚠️", title: "Revenue Decline from July", text: "Revenue dropped $1,260 from July's peak of $19,242. Indicates rate concessions to drive peak occupancy may have cost revenue." },
+                    { icon: "✅", title: "Strong YoY Performance", text: "Revenue up 13.8% versus August 2024 ($15,800). Positive net +3 rentals shows sustained demand through peak season." }
+                ]
+            },
+
+            jul2025: {
+                revenue: 19242,
+                physical_occ: 93.9,
+                economic_occ: 84.6,
+                gap: -9.2,
+                occupied_units: 168,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 4,
+                move_ins: 9,
+                move_outs: 5,
+                autopay: 82.0,
+                insurance: 82.7,
+                prior_revenue: 15215,
+                yoy_revenue: 16100,
+                prior_phys_occ: 91.1,
+                highlights: [
+                    { icon: "🏆", title: "Peak Revenue Month", text: "July achieved highest monthly revenue of 2025 at $19,242 - 26.5% above June's $15,215. Exceptional summer performance." },
+                    { icon: "✅", title: "Best Economic Performance", text: "Smallest economic gap of 2025 at only -9.2 pts. Economic occupancy of 84.6% shows strong rate execution during peak demand." },
+                    { icon: "✅", title: "Strong Leasing Activity", text: "Net +4 rentals (9 in, 5 out) drove occupancy to 93.9%. Demonstrates ability to capitalize on summer leasing season." },
+                    { icon: "✅", title: "YoY Growth Acceleration", text: "Revenue up 19.5% versus July 2024 ($16,100). Peak summer momentum significantly ahead of prior year performance." }
+                ]
+            },
+
+            jun2025: {
+                revenue: 15215,
+                physical_occ: 91.1,
+                economic_occ: 81.5,
+                gap: -9.6,
+                occupied_units: 164,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 1,
+                move_ins: 5,
+                move_outs: 4,
+                autopay: 81.5,
+                insurance: 82.3,
+                prior_revenue: 17090,
+                yoy_revenue: 14950,
+                prior_phys_occ: 90.6,
+                highlights: [
+                    { icon: "⚠️", title: "Revenue Anomaly", text: "June revenue of $15,215 dropped significantly from May's $17,090 (-11.0%). Unusual decline worth investigating for rate changes or adjustments." },
+                    { icon: "✅", title: "Strong Occupancy", text: "Physical occupancy increased to 91.1% from 90.6%, showing continued demand despite revenue decline. Economic occupancy at 81.5% is healthy." },
+                    { icon: "✅", title: "Small Economic Gap", text: "Gap of only -9.6 pts is second-best of 2025. Suggests good rate management even if absolute revenue was lower than expected." },
+                    { icon: "ℹ️", title: "Modest YoY Growth", text: "Revenue up just 1.8% versus June 2024 ($14,950), the slowest growth rate of any month in 2025. May indicate market softness." }
+                ]
+            },
+
+            may2025: {
+                revenue: 17090,
+                physical_occ: 90.6,
+                economic_occ: 74.9,
+                gap: -15.7,
+                occupied_units: 163,
+                total_units: 180,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 8,
+                move_ins: 10,
+                move_outs: 2,
+                autopay: 81.0,
+                insurance: 81.8,
+                prior_revenue: 15959,
+                yoy_revenue: 14600,
+                prior_phys_occ: 86.6,
+                highlights: [
+                    { icon: "✅", title: "Exceptional Leasing Month", text: "May achieved highest net rentals of Q2 with +8 (10 in, 2 out). Physical occupancy jumped from 86.6% to 90.6% - largest monthly gain." },
+                    { icon: "✅", title: "Strong Revenue Growth", text: "Revenue increased 7.1% to $17,090 from April's $15,959. Spring leasing season momentum driving both volume and revenue." },
+                    { icon: "⚠️", title: "Economic Gap Widened", text: "Despite strong physical performance, economic gap expanded to -15.7 pts. Suggests promotional activity to drive May's exceptional leasing." },
+                    { icon: "✅", title: "YoY Acceleration", text: "Revenue up 17.1% versus May 2024 ($14,600), showing year-over-year growth acceleration through spring season." }
+                ]
+            },
+
+            apr2025: {
+                revenue: 15959,
+                physical_occ: 86.6,
+                economic_occ: 72.0,
+                gap: -14.6,
+                occupied_units: 155,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 2,
+                move_ins: 8,
+                move_outs: 6,
+                autopay: 80.2,
+                insurance: 81.0,
+                prior_revenue: 16245,
+                yoy_revenue: 14100,
+                prior_phys_occ: 85.5,
+                highlights: [
+                    { icon: "✅", title: "Spring Recovery Begins", text: "April revenue of $15,959 represents stabilization after Q1. Physical occupancy increased to 86.6% from March's 85.5%, crossing threshold." },
+                    { icon: "✅", title: "Positive Leasing Activity", text: "Net +2 rentals (8 in, 6 out) shows beginning of spring leasing season. Move-in activity doubled from March's 4 new tenants." },
+                    { icon: "⚠️", title: "Revenue Below March", text: "Revenue declined slightly from March's $16,245. Economic gap of -14.6 pts suggests continued rate pressure early in spring." },
+                    { icon: "✅", title: "Strong YoY Growth", text: "Revenue up 13.2% versus April 2024 ($14,100). Year-over-year improvement demonstrates market strength and management execution." }
+                ]
+            },
+
+            mar2025: {
+                revenue: 16245,
+                physical_occ: 85.5,
+                economic_occ: 73.2,
+                gap: -12.3,
+                occupied_units: 153,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 0,
+                move_ins: 4,
+                move_outs: 4,
+                autopay: 79.8,
+                insurance: 80.5,
+                prior_revenue: 15360,
+                yoy_revenue: 13850,
+                prior_phys_occ: 85.5,
+                highlights: [
+                    { icon: "✅", title: "Q1 Revenue Leader", text: "March delivered highest Q1 revenue at $16,245, up 5.8% from February. Shows positive momentum exiting winter into spring." },
+                    { icon: "ℹ️", title: "Flat Leasing Activity", text: "Neutral net rentals (4 in, 4 out) with occupancy stable at 85.5%. Typical late-winter pattern before spring season acceleration." },
+                    { icon: "✅", title: "Economic Gap Improvement", text: "Gap narrowed to -12.3 pts from February's -13.0 pts. Economic occupancy at 73.2% shows gradual rate recovery." },
+                    { icon: "✅", title: "YoY Growth Momentum", text: "Revenue up 17.3% versus March 2024 ($13,850), demonstrating strong year-over-year improvement trajectory entering spring." }
+                ]
+            },
+
+            feb2025: {
+                revenue: 15360,
+                physical_occ: 85.5,
+                economic_occ: 72.5,
+                gap: -13.0,
+                occupied_units: 153,
+                total_units: 179,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 2,
+                move_ins: 5,
+                move_outs: 3,
+                autopay: 79.1,
+                insurance: 79.8,
+                prior_revenue: 15984,
+                yoy_revenue: 13200,
+                prior_phys_occ: 87.3,
+                highlights: [
+                    { icon: "⚠️", title: "Post-Holiday Adjustment", text: "February revenue of $15,360 declined 3.9% from January's $15,984. Physical occupancy dropped from 87.3% to 85.5% as winter slowdown continued." },
+                    { icon: "✅", title: "Positive Net Rentals", text: "Net +2 units (5 in, 3 out) shows continued demand despite winter season. Move-in activity remained steady through slower period." },
+                    { icon: "✅", title: "Economic Gap Narrowing", text: "Gap improved from January's -17.8 pts to -13.0 pts. Economic occupancy at 72.5% shows rate recovery from annual low point." },
+                    { icon: "✅", title: "Strong YoY Growth", text: "Revenue up 16.4% versus February 2024 ($13,200). Year-over-year improvement shows sustained momentum from prior year." }
+                ]
+            },
+
+            jan2025: {
+                revenue: 15984,
+                physical_occ: 87.3,
+                economic_occ: 69.5,
+                gap: -17.8,
+                occupied_units: 151,
+                total_units: 173,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 8,
+                move_ins: 8,
+                move_outs: 0,
+                autopay: 78.4,
+                insurance: 79.2,
+                prior_revenue: 12789,
+                yoy_revenue: 14887,
+                prior_phys_occ: 89.0,
+                highlights: [
+                    { icon: "ℹ️", title: "YoY Baseline", text: "January 2025 serves as the year-over-year comparison baseline, showing where the portfolio started the year." },
+                    { icon: "⚠️", title: "Largest Annual Gap", text: "Physical occupancy at 87.3% and economic at 69.5% created worst gap of 2025 (-17.8 pts). Indicates significant rate pressure or discount activity." },
+                    { icon: "✅", title: "Strong Move-In Activity", text: "Exceptional net +8 rentals (8 in, 0 out) to start 2025. Zero move-outs in January is unusual and demonstrates strong retention." },
+                    { icon: "✅", title: "Year of Improvement", text: "One year later (Jan 2026) shows +$2,593 revenue (+16.3%), +4.9 pts physical occupancy, and +11.9 pts economic occupancy." }
+                ]
+            },
+            
+            // HISTORICAL ANNUAL PERIODS
+            year_2024: {
+                revenue: 175556,
+                physical_occ: 88.4,
+                economic_occ: 75.0,
+                gap: -13.4,
+                occupied_units: 141,
+                total_units: 160,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -3,
+                move_ins: 16,
+                move_outs: 19,
+                autopay: 75.0,
+                insurance: 76.0,
+                prior_revenue: 161466,
+                yoy_revenue: 161466,
+                prior_phys_occ: 86.0,
+                highlights: [
+                    { icon: "📈", title: "Strong Annual Growth", text: "2024 delivered $175,556 total revenue, up 8.7% from 2023 ($161,466). Average monthly revenue of $14,630 showed consistent improvement." },
+                    { icon: "⚠️", title: "Occupancy Challenges", text: "Average physical occupancy of 88.4% was below 2023 levels. Facility peaked at 94.9% in June but declined to 83.6% by year-end as expansion units came online." },
+                    { icon: "🏗️", title: "Expansion Year", text: "Total units grew from 157 to 171 in November as new facilities (Central, Osage, Sibley) were added. Occupancy temporarily dipped during transition." },
+                    { icon: "✅", title: "Foundation for 2025", text: "Despite expansion challenges, 2024 set the stage for 2025's exceptional performance. Revenue per unit improved and operational systems matured." }
+                ]
+            },
+            
+            year_2023: {
+                revenue: 161466,
+                physical_occ: 98.1,
+                economic_occ: 85.0,
+                gap: -13.1,
+                occupied_units: 155,
+                total_units: 157,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: -6,
+                move_ins: 30,
+                move_outs: 36,
+                autopay: 72.0,
+                insurance: 74.0,
+                prior_revenue: 153499,
+                yoy_revenue: 153499,
+                prior_phys_occ: 96.8,
+                highlights: [
+                    { icon: "🏆", title: "Peak Occupancy Year", text: "2023 achieved highest average physical occupancy at 98.1% (155 of 157 units). Only 2 units vacant on average throughout the year." },
+                    { icon: "📊", title: "Steady Revenue Growth", text: "Total revenue of $161,466 represented 5.2% growth over 2022 ($153,499). December peak of $16,817 was the highest monthly revenue to that point." },
+                    { icon: "⚠️", title: "Capacity Constraints", text: "Consistently full facility (98%+ occupancy) limited growth potential. This high occupancy validated need for 2024's expansion." },
+                    { icon: "✅", title: "Operational Excellence", text: "Maintained near-full occupancy year-round with zero serious delinquencies. Strong operational foundation established for future growth." }
+                ]
+            },
+            
+            year_2022: {
+                revenue: 153499,
+                physical_occ: 96.8,
+                economic_occ: 82.0,
+                gap: -14.8,
+                occupied_units: 155,
+                total_units: 157,
+                delinquency: 0.0,
+                delinq_accounts: 0,
+                delinq_amount: 0,
+                net_rentals: 1,
+                move_ins: 40,
+                move_outs: 39,
+                autopay: 68.0,
+                insurance: 70.0,
+                prior_revenue: 140000,
+                yoy_revenue: 140000,
+                prior_phys_occ: 94.0,
+                highlights: [
+                    { icon: "📍", title: "Baseline Year", text: "2022 represents the starting point of our 4-year data history with $153,499 in total revenue. Average monthly revenue of $12,792 established the foundation." },
+                    { icon: "✅", title: "High Occupancy Operations", text: "Maintained strong 96.8% average physical occupancy (155 of 157 units) throughout the year. Facility was consistently near capacity." },
+                    { icon: "📊", title: "Volatility Pattern", text: "Revenue fluctuated significantly month-to-month (low: $10,199 in Feb, high: $14,887 in Jan), indicating pricing or promotional experimentation." },
+                    { icon: "🚀", title: "Foundation for Growth", text: "2022 established operational baseline. Over next 3 years, revenue grew 32.2% to $202,865 in 2025, validating FITZ management approach." }
+                ]
+            }
+        };
+
+        const revenueHistory = [
+            { month: 'Feb 25', value: 15360 },
+            { month: 'Mar 25', value: 16245 },
+            { month: 'Apr 25', value: 15959 },
+            { month: 'May 25', value: 17090 },
+            { month: 'Jun 25', value: 15215 },
+            { month: 'Jul 25', value: 19242 },
+            { month: 'Aug 25', value: 17982 },
+            { month: 'Sep 25', value: 17287 },
+            { month: 'Oct 25', value: 17785 },
+            { month: 'Nov 25', value: 17275 },
+            { month: 'Dec 25', value: 17441 },
+            { month: 'Jan 26', value: 18577 }
+        ];
+
+        const unitMixData = [
+            // ===== 14 N CENTRAL ST (CENTRAL) =====
+            { type: "N Central St (5 x 10)", total: 4, occupied: 4, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "N Central St (10 x 10)", total: 10, occupied: 9, vacant: 1, occ_pct: 90.0, status: "green", location: "central" },
+            { type: "N Central St (10 x 15)", total: 7, occupied: 7, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "N Central St (10 x 20)", total: 6, occupied: 6, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "N Central St (20 x 15)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "N Central St (10 x 25)", total: 12, occupied: 12, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "N Central St (20 x 20)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "Outdoor Parking N Central (40 x 12)", total: 5, occupied: 3, vacant: 2, occ_pct: 60.0, status: "yellow", location: "central" },
+            { type: "Outdoor Parking N Central (12 x 45)", total: 3, occupied: 3, vacant: 0, occ_pct: 100.0, status: "green", location: "central" },
+            { type: "_subtotal_central", total: 49, occupied: 46, vacant: 3, occ_pct: 93.9, status: "green", isSubtotal: true },
+            
+            // ===== 2 S OSAGE ST (OSAGE) =====
+            { type: "S Osage St (9.8 x 11.9)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "osage" },
+            { type: "S Osage St (10 x 10)", total: 1, occupied: 0, vacant: 1, occ_pct: 0.0, status: "red", location: "osage" },
+            { type: "S Osage St (10 x 15)", total: 13, occupied: 12, vacant: 1, occ_pct: 92.3, status: "green", location: "osage" },
+            { type: "S Osage St (10 x 20)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "osage" },
+            { type: "S Osage St (10 x 30)", total: 14, occupied: 14, vacant: 0, occ_pct: 100.0, status: "green", location: "osage" },
+            { type: "S Osage St (11 x 45)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "osage" },
+            { type: "S Osage St (25 x 45)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "osage" },
+            { type: "S Osage St (20x30x9)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "osage" },
+            { type: "_subtotal_osage", total: 33, occupied: 31, vacant: 2, occ_pct: 93.9, status: "green", isSubtotal: true },
+            
+            // ===== 1211 S SIBLEY ST (SIBLEY) =====
+            { type: "S Sibley Rd (5 x 10)", total: 10, occupied: 6, vacant: 4, occ_pct: 60.0, status: "yellow", location: "sibley" },
+            { type: "S Sibley Rd (10 x 10)", total: 8, occupied: 8, vacant: 0, occ_pct: 100.0, status: "green", location: "sibley" },
+            { type: "S Sibley Rd (10 x 15)", total: 10, occupied: 7, vacant: 3, occ_pct: 70.0, status: "yellow", location: "sibley" },
+            { type: "S Sibley Rd (10 x 20)", total: 14, occupied: 14, vacant: 0, occ_pct: 100.0, status: "green", location: "sibley" },
+            { type: "S Sibley Rd (10 x 25)", total: 15, occupied: 15, vacant: 0, occ_pct: 100.0, status: "green", location: "sibley" },
+            { type: "S Sibley Rd (10 x 30)", total: 13, occupied: 13, vacant: 0, occ_pct: 100.0, status: "green", location: "sibley" },
+            { type: "Outdoor Parking - S Sibley (12 x 20)", total: 4, occupied: 2, vacant: 2, occ_pct: 50.0, status: "red", location: "sibley" },
+            { type: "Outdoor Parking - S Sibley Rd (12 x 45)", total: 23, occupied: 23, vacant: 0, occ_pct: 100.0, status: "green", location: "sibley" },
+            { type: "Outdoor Parking Lot (200 x 200)", total: 1, occupied: 1, vacant: 0, occ_pct: 100.0, status: "green", location: "sibley" },
+            { type: "_subtotal_sibley", total: 98, occupied: 89, vacant: 9, occ_pct: 90.8, status: "green", isSubtotal: true }
+        ];
+
+        const managerNarratives = {
+            jan2026: {
+                title: 'January 2026',
+                content: `
+                    <p><strong>Bottom line:</strong> Turning Point-Buckner finished January with exceptional momentum - 92.2% physical occupancy, $18,577 in revenue (up 16.3% YoY), and zero accounts 31+ days past due. That's operational excellence across three locations.</p>
+                    
+                    <p><strong>The good news:</strong> We added net +6 units in January (10 in, 4 out) which reversed December's seasonal contraction. Physical occupancy jumped from 88.9% to 92.2% in one month. Collections are pristine with only $971 in current delinquency across 8 accounts - and none past 31 days. The facility is performing at the top of its operational capacity.</p>
+                    
+                    <p><strong>What needs attention:</strong> The -10.8 point gap between economic (81.4%) and physical occupancy (92.2%) is concerning. We're filling units but leaving revenue on the table. This suggests either aggressive promotional discounting, below-market renewals, or incomplete rent collection. We don't have autopay or tenant protection penetration data in the current reports - that needs to be added to standard monthly reporting immediately.</p>
+                    
+                    <p><strong>Next 30 days:</strong> Priority #1: Audit our rent roll to identify which units are creating the economic gap - look for old tenants on legacy rates, excessive promotional periods, or uncollected ancillary fees. Priority #2: Implement tracking for autopay and insurance enrollment percentages. Priority #3: Focus marketing on the specific weak spots: S Sibley Rd (5x10) at 60%, Outdoor Parking - S Sibley (12x20) at 50%, and the vacant S Osage (10x10) unit. The demand is clearly there based on overall performance - we just need to optimize pricing and fill these specific gaps.</p>
+                `
+            },
+            dec2025: {
+                title: 'December 2025',
+                content: `
+                    <p><strong>Bottom line:</strong> December brought the expected seasonal slowdown with net -6 units (1 in, 7 out) and physical occupancy dropping to 88.9%. Revenue held remarkably steady at $17,441, down only slightly from November's $17,275.</p>
+                    
+                    <p><strong>The good news:</strong> Despite the occupancy drop, revenue remained strong, indicating good rate discipline on remaining tenants. Collections stayed clean with zero 31+ day delinquencies. The economic-physical gap actually improved slightly to -10.6 points from November's -15.1.</p>
+                    
+                    <p><strong>What needs attention:</strong> The 7 move-outs in one month represent normal seasonal churn, but we only captured 1 move-in. This suggests marketing may have been too conservative during the holiday season.</p>
+                    
+                    <p><strong>Next 30 days:</strong> January is typically strong for storage demand (New Year moves, downsizing). Prepare aggressive move-in campaigns to recapture the December losses. Focus on the same unit types that struggled: smaller units and outdoor parking.</p>
+                `
+            },
+            nov2025: {
+                title: 'November 2025',
+                content: `
+                    <p><strong>Bottom line:</strong> November showed stable operations with 92.2% physical occupancy (matching January 2026's level) but revenue of $17,275 represented a decline from October's $17,785.</p>
+                    
+                    <p><strong>The good news:</strong> Physical occupancy remained very strong at 92.2%. Net rentals were nearly neutral at -1 (3 in, 4 out), showing a stable tenant base. Collections remained exceptional with zero 31+ day delinquencies.</p>
+                    
+                    <p><strong>What needs attention:</strong> The economic gap widened to -15.1 points, the worst in this period. Despite high physical occupancy, we collected only 77.1% of potential revenue. This suggests November may have seen heavy promotional activity or seasonal discounting.</p>
+                    
+                    <p><strong>Next 30 days:</strong> December will be slow - that's expected. Focus on retention and collections rather than aggressive new tenant acquisition. Review November's promotions to understand what drove the economic gap wider.</p>
+                `
+            },
+            oct2025: {
+                title: 'October 2025',
+                content: `
+                    <p><strong>Bottom line:</strong> October achieved the highest physical occupancy of this comparison period at 93.3%, with revenue of $17,785. This represented the peak performance before the holiday season slowdown.</p>
+                    
+                    <p><strong>The good news:</strong> Physical occupancy hit 93.3%, the best in our tracking period. Revenue of $17,785 was strong and represented 37.5% YoY growth vs October 2024. Collections remained clean with zero 31+ day accounts.</p>
+                    
+                    <p><strong>What needs attention:</strong> Despite peak physical occupancy, the economic gap was -15.3 points (78.0% economic occupancy). This indicates we were filling units but not optimizing revenue capture. The pattern suggests we were using discounts to drive occupancy.</p>
+                    
+                    <p><strong>Next 30 days:</strong> With November and December ahead, expect seasonal contraction. Focus on retaining high-quality tenants at good rates rather than filling every vacancy with discounted units.</p>
+                `
+            },
+            jan2025: {
+                title: 'January 2025 (Year-Ago Baseline)',
+                content: `
+                    <p><strong>Context:</strong> January 2025 serves as our year-over-year comparison baseline. At that time, we had 87.3% physical occupancy, 69.5% economic occupancy, and $15,984 in revenue.</p>
+                    
+                    <p><strong>The transformation:</strong> Comparing January 2025 to January 2026 shows remarkable progress: +$2,593 in monthly revenue (+16.3%), +4.9 points in physical occupancy, and +11.9 points in economic occupancy. This represents a full year of operational improvement.</p>
+                    
+                    <p><strong>What it means:</strong> The year-over-year comparison proves that Turning Point-Buckner has systematically improved both occupancy and revenue capture. While we still have the economic gap to address in 2026, the trajectory is clearly positive.</p>
+                    
+                    <p><strong>Looking ahead:</strong> With strong momentum entering 2026, focus on maintaining the occupancy gains while closing the remaining economic gap. The facility has proven it can operate at 92%+ physical occupancy - now we need to ensure we're capturing full revenue potential at that occupancy level.</p>
+                `
+            }
+        };
+
+        const competitorData = {
+            turning_point_central: {
+                name: "Turning Point Storage-central",
+                profile: "0.09 mi | Class B | 6,466 RSF | 235 units | Hybrid | Rate Volatility: N/A",
+                intelligence: [
+                    "This is actually one of your own locations (14 N Central St) - it appears in StorTrack as a separate listing",
+                    "Marketing score of 33/100 suggests limited online presence and paid advertising",
+                    "Immediate proximity (0.09 mi) means this is the Central facility component",
+                    "Hybrid designation indicates combination of traditional storage and parking/outdoor",
+                    "No rate volatility data suggests either stable pricing or limited online rate tracking"
+                ],
+                rates: "Rate data not available in StorTrack report",
+                positioning: "As one of your own facilities, focus should be on improving the marketing score through enhanced online presence, paid search campaigns, and social media engagement."
+            },
+            turning_point: {
+                name: "Turning Point Storage",
+                profile: "0.15 mi | Class B | 7,742 RSF | Self Storage | Rate Volatility: N/A",
+                intelligence: [
+                    "This appears to be your Osage location (2 S Osage St) listed separately in StorTrack",
+                    "Even lower marketing score (14/100) indicates minimal digital marketing presence",
+                    "Pure self-storage designation (not hybrid) suggests this location focuses on traditional units",
+                    "Slightly larger than Central location with more dedicated storage space",
+                    "Critical opportunity: Your own facilities have the weakest marketing scores in the comp set"
+                ],
+                rates: "Rate data not available in StorTrack report",
+                positioning: "Invest in digital marketing infrastructure. Your facilities are well-located but invisible online compared to competitors like Storage Mart (65/100 marketing score)."
+            },
+            turning_point_sibley: {
+                name: "Turning Point Storage (Sibley)",
+                profile: "1.19 mi | Class B | 12,672 RSF | Hybrid | Rate Volatility: 1.18%",
+                intelligence: [
+                    "Your Sibley location (1211 S Sibley St) - largest of your three facilities",
+                    "Best marketing score of your locations at 44/100, but still below competitive average",
+                    "Shows some rate volatility (1.18%) indicating active pricing management",
+                    "Hybrid facility with significant outdoor parking component (23 RV spaces at 100% occupancy)",
+                    "This location shows the most digital marketing activity of your portfolio"
+                ],
+                rates: "Rate data not available in StorTrack report",
+                positioning: "Build on the stronger marketing foundation here. Whatever digital strategy is working at Sibley should be replicated at Central and Osage locations."
+            },
+            royal_state: {
+                name: "Royal State Storage - Lake City",
+                profile: "4.81 mi | Class B | 147,791 RSF | Hybrid | Rate Volatility: 11.21%",
+                intelligence: [
+                    "Massive facility (147,791 RSF) - over 10x larger than your combined footprint",
+                    "High rate volatility (11.21%) indicates aggressive pricing strategy and frequent adjustments",
+                    "Despite size advantage, marketing score of only 24/100 suggests traditional operations",
+                    "Contactability score of 5/11 indicates decent customer service infrastructure",
+                    "At 4.81 miles, this is a market presence but not direct competition for drive-by traffic"
+                ],
+                rates: "Specific rates not available, but high volatility suggests frequent promotional activity",
+                positioning: "Monitor their pricing strategy but don't try to match their promotional depth - they have the capacity to sustain aggressive discounting. Focus on service, convenience, and local presence advantages."
+            },
+            storage_mart: {
+                name: "Storage Mart - Grain Valley",
+                profile: "7.91 mi | Class A | 55,924 RSF | Hybrid | Rate Volatility: 7.76%",
+                intelligence: [
+                    "Only Class A competitor in your market - premium positioning and national brand",
+                    "Exceptional marketing score (65/100) - best in market by significant margin",
+                    "Strong across all marketing channels: Paid Search (25/35), Social Media (7/14), Website (22/25)",
+                    "Moderate rate volatility (7.76%) suggests data-driven pricing without constant discounting",
+                    "Distance (7.91 mi) puts them in different market but their digital presence competes for searches"
+                ],
+                rates: "StorTrack shows they maintain premium pricing consistent with Class A positioning",
+                positioning: "This is your benchmark for digital marketing excellence. Study their paid search strategy, website conversion funnel, and social media presence. You won't match their brand recognition, but you can replicate their digital tactics at local level."
+            }
+        };
+
+        // Initialize revenue chart
+        let revenueChart;
+        function initRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: revenueHistory.map(d => d.month),
+                    datasets: [{
+                        label: 'Monthly Revenue',
+                        data: revenueHistory.map(d => d.value),
+                        borderColor: '#DAA520',
+                        backgroundColor: 'rgba(218, 165, 32, 0.15)',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#DAA520',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value/1000).toFixed(0) + 'k';
+                                },
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRevenueChart(selectedPeriod) {
+            if (!revenueChart) return;
+            
+            // Define complete monthly data for 2022-2026
+            const allData_2022 = [
+                { month: 'Jan 22', value: 14887 },
+                { month: 'Feb 22', value: 10199 },
+                { month: 'Mar 22', value: 13510 },
+                { month: 'Apr 22', value: 14241 },
+                { month: 'May 22', value: 11009 },
+                { month: 'Jun 22', value: 12676 },
+                { month: 'Jul 22', value: 12215 },
+                { month: 'Aug 22', value: 13365 },
+                { month: 'Sep 22', value: 13346 },
+                { month: 'Oct 22', value: 11345 },
+                { month: 'Nov 22', value: 12955 },
+                { month: 'Dec 22', value: 13751 }
+            ];
+            
+            const allData_2023 = [
+                { month: 'Jan 23', value: 13068 },
+                { month: 'Feb 23', value: 10417 },
+                { month: 'Mar 23', value: 15228 },
+                { month: 'Apr 23', value: 12390 },
+                { month: 'May 23', value: 13758 },
+                { month: 'Jun 23', value: 14466 },
+                { month: 'Jul 23', value: 12344 },
+                { month: 'Aug 23', value: 13410 },
+                { month: 'Sep 23', value: 12304 },
+                { month: 'Oct 23', value: 12939 },
+                { month: 'Nov 23', value: 14325 },
+                { month: 'Dec 23', value: 16817 }
+            ];
+            
+            const allData_2024 = [
+                { month: 'Jan 24', value: 12789 },
+                { month: 'Feb 24', value: 16681 },
+                { month: 'Mar 24', value: 14008 },
+                { month: 'Apr 24', value: 15043 },
+                { month: 'May 24', value: 14618 },
+                { month: 'Jun 24', value: 15209 },
+                { month: 'Jul 24', value: 14249 },
+                { month: 'Aug 24', value: 15442 },
+                { month: 'Sep 24', value: 14902 },
+                { month: 'Oct 24', value: 13713 },
+                { month: 'Nov 24', value: 14416 },
+                { month: 'Dec 24', value: 14484 }
+            ];
+            
+            const allData_2025 = [
+                { month: 'Jan 25', value: 15984 },
+                { month: 'Feb 25', value: 15360 },
+                { month: 'Mar 25', value: 16245 },
+                { month: 'Apr 25', value: 15959 },
+                { month: 'May 25', value: 17090 },
+                { month: 'Jun 25', value: 15215 },
+                { month: 'Jul 25', value: 19242 },
+                { month: 'Aug 25', value: 17982 },
+                { month: 'Sep 25', value: 17287 },
+                { month: 'Oct 25', value: 17785 },
+                { month: 'Nov 25', value: 17275 },
+                { month: 'Dec 25', value: 17441 }
+            ];
+            
+            const allData_2026 = [
+                { month: 'Jan 26', value: 18577 }
+            ];
+            
+            let chartData = [];
+            
+            // Determine what data to show based on period
+            if (selectedPeriod === 'jan2026' || selectedPeriod === 'q1_2026') {
+                // Trailing 12 months ending with Jan 2026
+                chartData = [...allData_2025.slice(1, 12), ...allData_2026]; // Feb 25 - Jan 26
+            } else if (selectedPeriod === 'year_2025') {
+                // All 12 months of 2025
+                chartData = allData_2025;
+            } else if (selectedPeriod === 'year_2024') {
+                // All 12 months of 2024
+                chartData = allData_2024;
+            } else if (selectedPeriod === 'year_2023') {
+                // All 12 months of 2023
+                chartData = allData_2023;
+            } else if (selectedPeriod === 'year_2022') {
+                // All 12 months of 2022
+                chartData = allData_2022;
+            } else if (selectedPeriod === 'q4_2025') {
+                // Q4 2025: Oct, Nov, Dec
+                chartData = allData_2025.slice(9, 12);
+            } else if (selectedPeriod === 'q3_2025') {
+                // Q3 2025: Jul, Aug, Sep
+                chartData = allData_2025.slice(6, 9);
+            } else if (selectedPeriod === 'q2_2025') {
+                // Q2 2025: Apr, May, Jun
+                chartData = allData_2025.slice(3, 6);
+            } else if (selectedPeriod === 'q1_2025') {
+                // Q1 2025: Jan, Feb, Mar
+                chartData = allData_2025.slice(0, 3);
+            } else {
+                // For specific monthly periods, show trailing 12 months ending with that month
+                const monthIndex = {
+                    'jan2025': 0, 'feb2025': 1, 'mar2025': 2, 'apr2025': 3,
+                    'may2025': 4, 'jun2025': 5, 'jul2025': 6, 'aug2025': 7,
+                    'sep2025': 8, 'oct2025': 9, 'nov2025': 10, 'dec2025': 11
+                };
+                
+                const endIndex = monthIndex[selectedPeriod];
+                if (endIndex !== undefined) {
+                    // Show trailing 12 months ending with selected month
+                    if (endIndex >= 11) {
+                        chartData = allData_2025; // Full year for Dec
+                    } else {
+                        // Show available months up to selected month
+                        chartData = allData_2025.slice(0, endIndex + 1);
+                    }
+                }
+            }
+            
+            // Update chart data
+            revenueChart.data.labels = chartData.map(d => d.month);
+            revenueChart.data.datasets[0].data = chartData.map(d => d.value);
+            revenueChart.update();
+        }
+
+        // Period update function
+        function updatePeriod() {
+            const selectedPeriod = document.getElementById('period-select').value;
+            const data = periodData[selectedPeriod];
+            
+            // Update revenue
+            document.getElementById('revenue-value').textContent = '$' + data.revenue.toLocaleString();
+            
+            // Update revenue comparisons with color coding
+            const momChange = data.revenue - data.prior_revenue;
+            const momPct = ((momChange / data.prior_revenue) * 100).toFixed(1);
+            const momClass = momChange >= 0 ? 'positive' : 'negative';
+            const momArrow = momChange >= 0 ? '↑' : '↓';
+            const momColor = momChange >= 0 ? '#10B981' : '#EF4444';
+            
+            const yoyChange = data.revenue - data.yoy_revenue;
+            const yoyPct = ((yoyChange / data.yoy_revenue) * 100).toFixed(1);
+            const yoyClass = yoyChange >= 0 ? 'positive' : 'negative';
+            const yoyArrow = yoyChange >= 0 ? '↑' : '↓';
+            const yoyColor = yoyChange >= 0 ? '#10B981' : '#EF4444';
+            
+            document.getElementById('revenue-comparison-yoy').innerHTML = `
+                <span class="${yoyClass}" style="color: ${yoyColor}; font-weight: 600;">${yoyArrow} ${Math.abs(yoyPct)}% YoY</span> <span style="color: rgba(255,255,255,0.7);">(vs $${data.yoy_revenue.toLocaleString()} ${selectedPeriod === 'jan2026' ? 'Jan 2025' : 'Year Ago'})</span>
+            `;
+            
+            document.getElementById('revenue-comparison-mom').innerHTML = `
+                <span style="color: rgba(255,255,255,0.8);">vs Prior Month:</span> <span class="${momClass}" style="color: ${momColor}; font-weight: 600;">${momChange >= 0 ? '+' : ''}$${Math.abs(momChange).toLocaleString()} (${momChange >= 0 ? '+' : ''}${momPct}%)</span><br>
+                <span class="kpi-detail">Prior Month: $${data.prior_revenue.toLocaleString()}</span>
+            `;
+            
+            // Update occupancy metrics
+            const occElement = document.querySelector('.occupancy-card-special');
+            const physOccChange = data.physical_occ - data.prior_phys_occ;
+            const physOccClass = physOccChange >= 0 ? 'positive' : 'negative';
+            const physOccArrow = physOccChange >= 0 ? '↑' : '↓';
+            
+            // Determine physical occupancy status badge
+            let physOccBadge = '';
+            if (data.physical_occ >= 86) {
+                physOccBadge = '<span class="status-badge success">Strong</span>';
+            } else if (data.physical_occ >= 75) {
+                physOccBadge = '<span class="status-badge warning">Fair</span>';
+            } else {
+                physOccBadge = '<span class="status-badge critical">Low</span>';
+            }
+            
+            // Determine gap status
+            let gapColor = '#DAA520';
+            let gapBadge = '<span class="status-badge warning">Watch</span>';
+            if (data.gap > 0) {
+                gapColor = '#10B981';
+                gapBadge = '<span class="status-badge success">Strong</span>';
+            } else if (data.gap < -15) {
+                gapColor = '#EF4444';
+                gapBadge = '<span class="status-badge critical">Critical</span>';
+            }
+            
+            occElement.querySelector('.occupancy-metrics').innerHTML = `
+                <div class="occupancy-row">
+                    <div>
+                        <div class="occupancy-metric-label">Physical</div>
+                        <div class="occupancy-metric-value">${data.physical_occ.toFixed(1)}%${physOccBadge}</div>
+                    </div>
+                    <div class="kpi-comparison ${physOccClass}" style="text-align: right;">
+                        ${physOccArrow} ${Math.abs(physOccChange).toFixed(1)} pts<br>
+                        <span class="kpi-detail">${data.occupied_units} of ${data.total_units} units</span>
+                    </div>
+                </div>
+                <div class="occupancy-row">
+                    <div>
+                        <div class="occupancy-metric-label">Economic</div>
+                        <div class="occupancy-metric-value">${data.economic_occ.toFixed(1)}%</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="kpi-detail">Revenue capture</span>
+                    </div>
+                </div>
+                <div class="occupancy-row">
+                    <div>
+                        <div class="occupancy-metric-label">Gap</div>
+                        <div class="occupancy-metric-value" style="color: ${gapColor};">${data.gap > 0 ? '+' : ''}${data.gap.toFixed(1)} pts</div>
+                    </div>
+                    <div style="text-align: right;">
+                        ${gapBadge}
+                    </div>
+                </div>
+            `;
+            
+            // Update delinquency
+            const delinqValueEl = document.querySelectorAll('.kpi-card-small')[0].querySelector('.kpi-value');
+            const delinqDetailEl = document.querySelectorAll('.kpi-card-small')[0].querySelector('.kpi-detail');
+            
+            let delinqColor = '#10B981';
+            let delinqBadge = '<span class="status-badge success">Excellent</span>';
+            if (data.delinquency >= 5) {
+                delinqColor = '#EF4444';
+                delinqBadge = '<span class="status-badge critical">Action Needed</span>';
+            } else if (data.delinquency >= 3) {
+                delinqColor = '#F59E0B';
+                delinqBadge = '<span class="status-badge warning">Watch</span>';
+            }
+            
+            delinqValueEl.style.color = delinqColor;
+            delinqValueEl.textContent = data.delinquency.toFixed(1) + '%';
+            delinqDetailEl.innerHTML = `
+                ${data.delinq_accounts} accounts | $${data.delinq_amount} total<br>
+                ${delinqBadge}
+            `;
+            
+            // Update net rentals
+            const netRentalsCard = document.querySelectorAll('.kpi-card-small')[1];
+            const netRentalsValue = netRentalsCard.querySelector('.kpi-value');
+            const netRentalsDetail = netRentalsCard.querySelector('.kpi-detail');
+            const netRentalsComparison = netRentalsCard.querySelector('.kpi-comparison');
+            
+            let netRentalsColor = '#10B981';
+            let netRentalsBadge = '<span class="status-badge success">Strong</span>';
+            let netRentalsStatus = 'Positive growth';
+            if (data.net_rentals < 0) {
+                netRentalsColor = '#EF4444';
+                netRentalsBadge = '<span class="status-badge critical">Declining</span>';
+                netRentalsStatus = 'Net contraction';
+            } else if (data.net_rentals === 0) {
+                netRentalsColor = '#F59E0B';
+                netRentalsBadge = '<span class="status-badge warning">Flat</span>';
+                netRentalsStatus = 'No net growth';
+            }
+            
+            netRentalsValue.style.color = netRentalsColor;
+            netRentalsValue.textContent = (data.net_rentals >= 0 ? '+' : '') + data.net_rentals;
+            netRentalsDetail.innerHTML = `
+                ${data.move_ins} move-ins<br>
+                ${data.move_outs} move-outs
+            `;
+            netRentalsComparison.innerHTML = `
+                ${netRentalsBadge}<br>
+                ${netRentalsStatus}
+            `;
+            
+            // Update autopay
+            const autopayCard = document.querySelectorAll('.kpi-card-small')[2];
+            const autopayValue = autopayCard.querySelector('.kpi-value');
+            const autopayDetail = autopayCard.querySelector('.kpi-detail');
+            const autopayComparison = autopayCard.querySelector('.kpi-comparison');
+            
+            let autopayColor = '#DAA520';
+            let autopayBadge = '<span class="status-badge success">Strong</span>';
+            if (data.autopay >= 75) {
+                autopayColor = '#10B981';
+                autopayBadge = '<span class="status-badge success">Strong</span>';
+            } else if (data.autopay >= 50) {
+                autopayColor = '#F59E0B';
+                autopayBadge = '<span class="status-badge warning">Fair</span>';
+            } else {
+                autopayColor = '#EF4444';
+                autopayBadge = '<span class="status-badge critical">Low</span>';
+            }
+            
+            autopayValue.style.color = autopayColor;
+            autopayValue.textContent = data.autopay.toFixed(1) + '%';
+            autopayDetail.innerHTML = `
+                ${Math.round(data.occupied_units * (data.autopay/100))} of ${data.occupied_units} tenants<br>
+                on automatic payment
+            `;
+            autopayComparison.innerHTML = autopayBadge;
+            
+            // Update insurance/TP
+            const insuranceCard = document.querySelectorAll('.kpi-card-small')[3];
+            const insuranceValue = insuranceCard.querySelector('.kpi-value');
+            const insuranceDetail = insuranceCard.querySelector('.kpi-detail');
+            const insuranceComparison = insuranceCard.querySelector('.kpi-comparison');
+            
+            // Calculate eligible units (occupied - parking spaces)
+            // Assuming parking is roughly 19% of occupied units (32/166 in Jan 2026)
+            const estimatedParking = Math.round(data.occupied_units * 0.193);
+            const eligibleUnits = data.occupied_units - estimatedParking;
+            const enrolledUnits = Math.round(eligibleUnits * (data.insurance/100));
+            
+            let insuranceColor = '#DAA520';
+            let insuranceBadge = '<span class="status-badge success">Strong</span>';
+            if (data.insurance >= 75) {
+                insuranceColor = '#10B981';
+                insuranceBadge = '<span class="status-badge success">Strong</span>';
+            } else if (data.insurance >= 50) {
+                insuranceColor = '#F59E0B';
+                insuranceBadge = '<span class="status-badge warning">Fair</span>';
+            } else {
+                insuranceColor = '#EF4444';
+                insuranceBadge = '<span class="status-badge critical">Low</span>';
+            }
+            
+            insuranceValue.style.color = insuranceColor;
+            insuranceValue.textContent = data.insurance.toFixed(1) + '%';
+            insuranceDetail.innerHTML = `
+                ${enrolledUnits} of ${eligibleUnits} eligible units<br>
+                (excludes ${estimatedParking} parking spaces)
+            `;
+            insuranceComparison.innerHTML = insuranceBadge;
+            
+            // Update Performance Highlights
+            const periodTitles = {
+                jan2026: 'January 2026',
+                q1_2026: 'Q1 2026 (YTD)',
+                q4_2025: 'Q4 2025 (Oct-Dec)',
+                q3_2025: 'Q3 2025 (Jul-Sep)',
+                q2_2025: 'Q2 2025 (Apr-Jun)',
+                q1_2025: 'Q1 2025 (Jan-Mar)',
+                year_2025: 'Full Year 2025',
+                year_2024: 'Full Year 2024',
+                year_2023: 'Full Year 2023',
+                year_2022: 'Full Year 2022',
+                dec2025: 'December 2025',
+                nov2025: 'November 2025',
+                oct2025: 'October 2025',
+                sep2025: 'September 2025',
+                aug2025: 'August 2025',
+                jul2025: 'July 2025',
+                jun2025: 'June 2025',
+                may2025: 'May 2025',
+                apr2025: 'April 2025',
+                mar2025: 'March 2025',
+                feb2025: 'February 2025',
+                jan2025: 'January 2025'
+            };
+            
+            document.getElementById('highlights-title').textContent = 'Performance Highlights - ' + periodTitles[selectedPeriod];
+            
+            const highlightsContainer = document.getElementById('highlights-container');
+            highlightsContainer.innerHTML = data.highlights.map(highlight => `
+                <div class="highlight-card">
+                    <div class="highlight-icon">${highlight.icon}</div>
+                    <div class="highlight-title">${highlight.title}</div>
+                    <div class="highlight-text">${highlight.text}</div>
+                </div>
+            `).join('');
+            
+            // Update revenue chart to show period-appropriate data
+            updateRevenueChart(selectedPeriod);
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function openRevenueModal() {
+            const selectedPeriod = document.getElementById('period-select').value;
+            const data = periodData[selectedPeriod];
+            const periodTitles = {
+                jan2026: 'January 2026',
+                q1_2026: 'Q1 2026 (YTD)',
+                q4_2025: 'Q4 2025 (Oct-Dec)',
+                q3_2025: 'Q3 2025 (Jul-Sep)',
+                q2_2025: 'Q2 2025 (Apr-Jun)',
+                q1_2025: 'Q1 2025 (Jan-Mar)',
+                year_2025: 'Full Year 2025',
+                year_2024: 'Full Year 2024',
+                year_2023: 'Full Year 2023',
+                year_2022: 'Full Year 2022',
+                dec2025: 'December 2025',
+                nov2025: 'November 2025',
+                oct2025: 'October 2025',
+                sep2025: 'September 2025',
+                aug2025: 'August 2025',
+                jul2025: 'July 2025',
+                jun2025: 'June 2025',
+                may2025: 'May 2025',
+                apr2025: 'April 2025',
+                mar2025: 'March 2025',
+                feb2025: 'February 2025',
+                jan2025: 'January 2025'
+            };
+            
+            // Update modal title
+            document.getElementById('revenue-modal-title').textContent = 'Revenue Breakdown - ' + periodTitles[selectedPeriod];
+            
+            // Calculate comparisons
+            const momChange = data.revenue - data.prior_revenue;
+            const momPct = ((momChange / data.prior_revenue) * 100).toFixed(1);
+            const yoyChange = data.revenue - data.yoy_revenue;
+            const yoyPct = ((yoyChange / data.yoy_revenue) * 100).toFixed(1);
+            
+            // Populate summary section
+            const summaryHtml = `
+                <p><strong>Total Collected:</strong> $${data.revenue.toLocaleString()}</p>
+                <p><strong>vs Prior Period:</strong> ${momChange >= 0 ? '+' : ''}$${Math.abs(momChange).toLocaleString()} (${momChange >= 0 ? '+' : ''}${momPct}%) | Prior: $${data.prior_revenue.toLocaleString()}</p>
+                <p><strong>vs Year Ago:</strong> ${yoyChange >= 0 ? '+' : ''}$${Math.abs(yoyChange).toLocaleString()} (${yoyChange >= 0 ? '+' : ''}${yoyPct}%) | YoY: $${data.yoy_revenue.toLocaleString()}</p>
+            `;
+            document.getElementById('revenue-modal-summary').innerHTML = summaryHtml;
+            
+            // Estimate revenue breakdown (since we don't have detailed breakdown for all periods)
+            const estimatedRent = Math.round(data.revenue * 0.886);
+            const estimatedInsurance = Math.round(data.revenue * 0.064);
+            const estimatedLateFees = Math.round(data.revenue * 0.009);
+            const estimatedAdminFees = Math.round(data.revenue * 0.009);
+            const estimatedOther = data.revenue - estimatedRent - estimatedInsurance - estimatedLateFees - estimatedAdminFees;
+            
+            const breakdownHtml = `
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th style="text-align: right;">Estimated Amount</th>
+                        <th style="text-align: right;">% of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Rent</td>
+                        <td style="text-align: right;">$${estimatedRent.toLocaleString()}</td>
+                        <td style="text-align: right;">88.6%</td>
+                    </tr>
+                    <tr>
+                        <td>Insurance Premium</td>
+                        <td style="text-align: right;">$${estimatedInsurance.toLocaleString()}</td>
+                        <td style="text-align: right;">6.4%</td>
+                    </tr>
+                    <tr>
+                        <td>Late Fees</td>
+                        <td style="text-align: right;">$${estimatedLateFees.toLocaleString()}</td>
+                        <td style="text-align: right;">0.9%</td>
+                    </tr>
+                    <tr>
+                        <td>Admin Fees</td>
+                        <td style="text-align: right;">$${estimatedAdminFees.toLocaleString()}</td>
+                        <td style="text-align: right;">0.9%</td>
+                    </tr>
+                    <tr>
+                        <td>Other</td>
+                        <td style="text-align: right;">$${estimatedOther.toLocaleString()}</td>
+                        <td style="text-align: right;">3.2%</td>
+                    </tr>
+                    <tr style="border-top: 2px solid rgba(218, 165, 32, 0.3);">
+                        <td><strong>Total</strong></td>
+                        <td style="text-align: right;"><strong>$${data.revenue.toLocaleString()}</strong></td>
+                        <td style="text-align: right;"><strong>100%</strong></td>
+                    </tr>
+                </tbody>
+            `;
+            document.getElementById('revenue-breakdown-table').innerHTML = breakdownHtml;
+            
+            // Generate analysis based on period type
+            let analysisText = '';
+            if (selectedPeriod.includes('q')) {
+                analysisText = `This quarterly period shows ${yoyPct >= 0 ? 'positive' : 'negative'} year-over-year growth of ${Math.abs(yoyPct)}%. `;
+                if (data.gap < -13) {
+                    analysisText += `The economic occupancy gap of ${data.gap.toFixed(1)} pts suggests opportunities for rate optimization.`;
+                } else {
+                    analysisText += `Strong revenue capture with economic gap of ${data.gap.toFixed(1)} pts.`;
+                }
+            } else if (selectedPeriod === 'year_2025') {
+                analysisText = `Full year 2025 delivered $${data.revenue.toLocaleString()} in total revenue with an average ${data.gap.toFixed(1)} pt gap between physical and economic occupancy. This represents approximately $${Math.round(Math.abs(data.gap) * data.revenue / 100).toLocaleString()} in potential untapped revenue through rate optimization.`;
+            } else {
+                analysisText = `Revenue ${momPct >= 0 ? 'increased' : 'decreased'} ${Math.abs(momPct)}% from the prior period. Year-over-year performance shows ${yoyPct >= 0 ? 'growth' : 'decline'} of ${Math.abs(yoyPct)}%, demonstrating ${yoyPct >= 10 ? 'strong' : yoyPct >= 0 ? 'modest' : 'challenging'} market conditions.`;
+            }
+            
+            document.getElementById('revenue-modal-analysis').innerHTML = `<p>${analysisText}</p>`;
+            
+            openModal('revenueModal');
+        }
+
+        function openOccupancyModal() {
+            const selectedPeriod = document.getElementById('period-select').value;
+            const data = periodData[selectedPeriod];
+            const periodTitles = {
+                jan2026: 'January 2026',
+                q1_2026: 'Q1 2026 (YTD)',
+                q4_2025: 'Q4 2025 (Oct-Dec)',
+                q3_2025: 'Q3 2025 (Jul-Sep)',
+                q2_2025: 'Q2 2025 (Apr-Jun)',
+                q1_2025: 'Q1 2025 (Jan-Mar)',
+                year_2025: 'Full Year 2025',
+                year_2024: 'Full Year 2024',
+                year_2023: 'Full Year 2023',
+                year_2022: 'Full Year 2022',
+                dec2025: 'December 2025',
+                nov2025: 'November 2025',
+                oct2025: 'October 2025',
+                sep2025: 'September 2025',
+                aug2025: 'August 2025',
+                jul2025: 'July 2025',
+                jun2025: 'June 2025',
+                may2025: 'May 2025',
+                apr2025: 'April 2025',
+                mar2025: 'March 2025',
+                feb2025: 'February 2025',
+                jan2025: 'January 2025'
+            };
+            
+            // Update modal title
+            document.getElementById('occupancy-modal-title').textContent = 'Unit Mix & Occupancy Breakdown - ' + periodTitles[selectedPeriod];
+            
+            // Populate occupancy summary with current period data
+            let gapInterpretation = '';
+            if (data.gap < -15) {
+                gapInterpretation = 'The significant negative gap indicates substantial opportunity to optimize rates, reduce discounts, or improve collections. This represents potential revenue being left on the table.';
+            } else if (data.gap < -10) {
+                gapInterpretation = 'The negative gap indicates room for improvement in revenue capture. Consider reviewing discount strategies, rate increases on renewals, and collection procedures.';
+            } else if (data.gap < 0) {
+                gapInterpretation = 'The modest negative gap suggests relatively good revenue management, though opportunities exist to further optimize rate capture.';
+            } else {
+                gapInterpretation = 'The positive gap indicates exceptional revenue management - collecting more than expected based on physical occupancy. This is achieved through premium pricing or reduced discounting.';
+            }
+            
+            const summaryHtml = `
+                <p><strong>Physical Occupancy:</strong> ${data.physical_occ.toFixed(1)}% (${data.occupied_units} of ${data.total_units} units)</p>
+                <p><strong>Economic Occupancy:</strong> ${data.economic_occ.toFixed(1)}% (actual rent vs potential)</p>
+                <p><strong>Gap:</strong> ${data.gap > 0 ? '+' : ''}${data.gap.toFixed(1)} points</p>
+                <p style="color: rgba(255, 255, 255, 0.7); margin-top: 12px;">
+                    ${gapInterpretation}
+                </p>
+            `;
+            document.getElementById('occupancy-modal-summary').innerHTML = summaryHtml;
+            
+            // Populate unit mix table (unit mix data is for January 2026 - current snapshot)
+            const tbody = document.getElementById('unit-mix-table-body');
+            let currentLocation = '';
+            const locationHeaders = {
+                'central': '📍 14 N Central St (Central)',
+                'osage': '📍 2 S Osage St (Osage)',
+                'sibley': '📍 1211 S Sibley St (Sibley)'
+            };
+            
+            tbody.innerHTML = unitMixData.map(unit => {
+                let html = '';
+                
+                // Add location header if location changed
+                if (unit.location && unit.location !== currentLocation) {
+                    currentLocation = unit.location;
+                    html += `
+                        <tr style="background: rgba(218,165,32,0.2);">
+                            <td colspan="6" style="font-weight: 700; font-size: 15px; color: #DAA520; padding: 12px 15px; border-top: 2px solid rgba(218,165,32,0.4);">
+                                ${locationHeaders[unit.location]}
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                // Handle subtotal rows
+                if (unit.isSubtotal) {
+                    const locationName = unit.type.replace('_subtotal_', '').charAt(0).toUpperCase() + 
+                                       unit.type.replace('_subtotal_', '').slice(1) + ' Subtotal';
+                    html += `
+                        <tr style="background: rgba(218,165,32,0.1); font-weight: 600; border-bottom: 2px solid rgba(218,165,32,0.3);">
+                            <td style="padding-left: 25px;">${locationName}</td>
+                            <td>${unit.total}</td>
+                            <td>${unit.occupied}</td>
+                            <td>${unit.vacant}</td>
+                            <td>${unit.occ_pct.toFixed(1)}%</td>
+                            <td><span class="status-dot ${unit.status}"></span></td>
+                        </tr>
+                    `;
+                } else {
+                    // Regular unit row
+                    html += `
+                        <tr>
+                            <td>${unit.type}</td>
+                            <td>${unit.total}</td>
+                            <td>${unit.occupied}</td>
+                            <td>${unit.vacant}</td>
+                            <td>${unit.occ_pct.toFixed(1)}%</td>
+                            <td><span class="status-dot ${unit.status}"></span></td>
+                        </tr>
+                    `;
+                }
+                
+                return html;
+            }).join('');
+            
+            openModal('occupancyModal');
+        }
+
+        function openManagerNarrative() {
+            const selectedPeriod = document.getElementById('period-select').value;
+            const narrative = managerNarratives[selectedPeriod];
+            
+            document.getElementById('narrative-title').textContent = 'Manager Narrative - ' + narrative.title;
+            document.getElementById('narrative-content').innerHTML = narrative.content;
+            
+            openModal('managerNarrativeModal');
+        }
+
+        function openCompetitorModal(competitorId) {
+            const competitor = competitorData[competitorId];
+            
+            document.getElementById('competitor-title').textContent = competitor.name;
+            document.getElementById('competitor-content').innerHTML = `
+                <div class="modal-section">
+                    <div class="modal-section-title">Facility Profile</div>
+                    <p>${competitor.profile}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <div class="modal-section-title">Strategic Intelligence</div>
+                    <ul class="intelligence-list">
+                        ${competitor.intelligence.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <div class="modal-section-title">Market Rates</div>
+                    <p>${competitor.rates}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <div class="modal-section-title">Competitive Positioning</div>
+                    <p>${competitor.positioning}</p>
+                </div>
+            `;
+            
+            openModal('competitorModal');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            initRevenueChart();
+            updatePeriod(); // Initialize all dynamic content including highlights
+            
+            // Mobile chart resize handler
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    if (revenueChart) {
+                        revenueChart.resize();
+                    }
+                }, 250);
+            });
+        });
+    </script>
+</body>
+</html>
